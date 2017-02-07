@@ -24,27 +24,68 @@ from google.appengine.ext import db
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                 autoescape = True)
+class Handler(webapp2.RequestHandler):
+    def write(self, *a, **kw):
+        self.response.write(*a, **kw)
 
-class Blog(webapp2.RequestHandler):
+    def render_str(self, template, **params):
+        t = jinja_env.get_template(template)
+        return t.render(params)
+
+    def render(self, template, **kw):
+        self.write(self.render_str(template, **kw))
+
+class Blog(db.Model):
+    title = db.StringProperty(required = True)
+    body = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+
+
+class MainBlog(Handler):
     """ Handles requests coming in to '/blog'
     """
+    def render_main_blog(self, title="", body = "", error="", blogs =""):
+        arts=db.GqlQuery(" SELECT * FROM Blog")
+
+
+        self.render("main_blog.html", title=title, body=body, error=error, blogs = blogs)
 
     def get(self):
-        t = jinja_env.get_template("main_blog.html")
-        content = t.render()
+        self.render_main_blog()
 
-        self.response.write(content)
+
+
 
 class NewPost(webapp2.RequestHandler):
     """ Handles requests coming in to '/newpost'"""
     def get(self):
         t = jinja_env.get_template("newpost.html")
-        content = t.render()
+        content = t.render(title=self.request.get("title"),
+                           error=self.request.get("error"), body=self.request.get("body"))
 
         self.response.write(content)
 
+    def post(self):
+        title = self.request.get("title")
+        body = self.request.get("body")
+
+        if title and body:
+            b = Blog(title = title, body = body)
+            b.put()
+
+            self.redirect("/blog")
+        else:
+            error = "we need both a title and a body!"
+            t = jinja_env.get_template("newpost.html")
+            content = t.render(title=title,
+                               error=error, body=body)
+
+            self.response.write(content)
+
+
+
 
 app = webapp2.WSGIApplication([
-    ('/blog', Blog),
+    ('/blog', MainBlog),
     ('/newpost', NewPost)
 ], debug=True)
