@@ -35,6 +35,16 @@ class Blog(webapp2.RequestHandler):
 
         self.response.write(content)
 
+class NewPost(webapp2.RequestHandler):
+    """ Handles requests coming in to '/newpost'"""
+    def get(self):
+        t = jinja_env.get_template("newpost.html")
+        content = t.render()
+
+        self.response.write(content)
+
+
 app = webapp2.WSGIApplication([
-    ('/blog', Blog)
+    ('/blog', Blog),
+    ('/newpost', NewPost)
 ], debug=True)
