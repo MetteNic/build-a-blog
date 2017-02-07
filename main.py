@@ -45,7 +45,11 @@ class MainBlog(Handler):
     """ Handles requests coming in to '/blog'
     """
     def render_main_blog(self, title="", body = "", error="", blogs =""):
-        arts=db.GqlQuery(" SELECT * FROM Blog")
+        blogs=db.GqlQuery(" SELECT * FROM Blog"
+                          " ORDER BY created DESC "
+                          "limit 5")
+
+
 
 
         self.render("main_blog.html", title=title, body=body, error=error, blogs = blogs)

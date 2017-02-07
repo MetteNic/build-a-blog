@@ -6,6 +6,8 @@
     <div class = "blog">
         <div class ="blog-title">{{blog.title}}</div>
         <pre class ="blog-body">{{blog.body}}</pre>
+        <input type="hidden" name="title" value="{{title}}"/>
+        <input type="hidden" name="body" value="{{ body }}"/>
     </div>
 {% endfor %}
 
