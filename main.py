@@ -40,6 +40,11 @@ class Blog(db.Model):
     body = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
+class Index(webapp2.RequestHandler):
+    def get(self):
+        self.redirect("/blog")
+
+
 
 class MainBlog(Handler):
     """ Handles requests coming in to '/blog'
@@ -112,4 +117,5 @@ app = webapp2.WSGIApplication([
     ('/blog', MainBlog),
     ('/newpost', NewPost),
     webapp2.Route('/blog/<id:\d+>', ViewPostHandler,),
+    ('/', Index),
 ], debug=True)
